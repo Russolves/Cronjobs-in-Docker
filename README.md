@@ -1,5 +1,5 @@
 # Cronjobs-in-Docker
-This repository shows how to construct a simple alpine docker container and running/scheduling cronjobs within that container.
+This repository shows how to construct a simple alpine docker container and running/scheduling cronjobs within that container, it is important to note that the script.sh file and the python script (should there be one) have to be located at the same directory level as the dockerfile in order towork.
 Note that both the Dockerfile and the script.sh produce individual log files separately from each other. Once the container is up and running these log files can be found in `/var/log/` 
 The Dockerfile produces a cron.log while the script produces a script.log
 
@@ -48,3 +48,77 @@ Or if you want to follow the log as new entries are added
 docker exec -it cron-container /bin/sh
 tail -f /var/log/script.log
 ```
+### Running a Python Script
+#### 1. Running Python code directly via cron in Docker
+Dockerfile
+```
+# Use a lightweight Linux distribution as a base
+FROM python:3.11-alpine
+
+# Install cron and any other dependencies
+RUN apk update && apk add --no-cache cronie
+
+# Install Python packages (if necessary)
+RUN pip install --no-cache-dir external-package-you-want-to-install
+
+# Copy the Python script into the container
+COPY script.py /usr/local/bin/script.py
+
+# Add the cron job directly to the root's crontab
+RUN echo "* * * * * python3 /usr/local/bin/script.py >> /var/log/cron.log 2>&1" > /etc/crontabs/root
+
+# Create the log file & make sure it's accessible
+RUN touch /var/log/cron.log
+
+# Start the cron service when the container starts
+CMD ["crond", "-f", "-s"]
+```
+Any output produced by the python file will be directly piped and appended over to the /var/log/cron.log file here
+
+Python Script
+```
+# script.py
+import datetime
+
+with open("/var/log/script.log", "a") as log_file:
+    log_file.write(f"This Python script ran at {datetime.datetime.now()}\n")
+```
+
+#### 2. Running Python script via a Shell script in Docker
+Dockerfile
+```
+# Use a lightweight Linux distribution as a base
+FROM python:3.11-alpine
+
+# Install cron and any other dependencies
+RUN apk update && apk add --no-cache bash cronie
+
+# Copy the Python script and shell script into the container
+COPY script.py /usr/local/bin/script.py
+COPY script.sh /usr/local/bin/script.sh
+
+# Make sure the shell script is executable
+RUN chmod +x /usr/local/bin/script.sh
+
+# Add the cron job that runs the shell script, since the shell script below already directs output into script.log we can discard output here
+RUN echo "* * * * * /usr/local/bin/script.sh >> /dev/null 2>&1" > /etc/crontabs/root
+
+# Create the log file & make sure it's accessible
+RUN touch /var/log/cron.log
+
+# Start the cron service when the container starts
+CMD ["crond", "-f", "-s"]
+```
+
+Shell script
+```
+#!/bin/bash
+
+# Run python script and then append logs to /var/log/script.log 
+python3 /usr/local/bin/script.py >> /var/log/script.log 2>&1
+```
+
+*Python script is the same as the first example*
+
+##### Log errors and discard regular output
+`RUN echo "* * * * * /usr/local/bin/script.sh > /dev/null 2>> /var/log/script-errors.log" > /etc/crontabs/root`
