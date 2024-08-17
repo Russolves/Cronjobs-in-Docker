@@ -48,8 +48,8 @@ Or if you want to follow the log as new entries are added
 docker exec -it cron-container /bin/sh
 tail -f /var/log/script.log
 ```
-### Running a Python Script
-#### 1. Running Python code directly via cron in Docker
+## Running a Python Script
+### 1. Running Python code directly via cron in Docker
 Dockerfile
 ```
 # Use a lightweight Linux distribution as a base
@@ -84,7 +84,7 @@ with open("/var/log/script.log", "a") as log_file:
     log_file.write(f"This Python script ran at {datetime.datetime.now()}\n")
 ```
 
-#### 2. Running Python script via a Shell script in Docker
+### 2. Running Python script via a Shell script in Docker
 Dockerfile
 ```
 # Use a lightweight Linux distribution as a base
@@ -120,5 +120,5 @@ python3 /usr/local/bin/script.py >> /var/log/script.log 2>&1
 
 *Python script is the same as the first example*
 
-##### Log errors and discard regular output
+#### Log errors and discard regular output
 `RUN echo "* * * * * /usr/local/bin/script.sh > /dev/null 2>> /var/log/script-errors.log" > /etc/crontabs/root`
