@@ -93,6 +93,9 @@ FROM python:3.11-alpine
 # Install cron and any other dependencies
 RUN apk update && apk add --no-cache bash cronie
 
+# Install Python packages (if necessary)
+RUN pip install --no-cache-dir external-package-you-want-to-install
+
 # Copy the Python script and shell script into the container
 COPY script.py /usr/local/bin/script.py
 COPY script.sh /usr/local/bin/script.sh
