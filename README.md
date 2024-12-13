@@ -1,5 +1,5 @@
 # Cronjobs-in-Docker
-This repository shows how to construct a simple alpine docker container and running/scheduling cronjobs within that Docker container, it is important to note that the script.sh file and the python script (should there be one) have to be located at the same directory level as the dockerfile in order to work.
+This repository shows how to construct a simple docker container and running/scheduling cronjobs within that Docker container, it is important to note that the script.sh file and the python script (should there be one) have to be located at the same directory level as the dockerfile in order to work.
 Note that both the Dockerfile and the script.sh produce individual log files separately from one another. Once the container is up and running these log files can be found in `/var/log/`.
 The code above produces a total of two logs as output, the Dockerfile produces a cron.log while the script produces a script.log
 
