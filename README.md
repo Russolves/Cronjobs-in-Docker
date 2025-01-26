@@ -3,7 +3,7 @@ This repository shows how to construct a simple lightweight alpine docker contai
 Note that both the Dockerfile and the script.sh produce individual log files separately from one another. Once the container is up and running these log files can be found in `/var/log/`.
 The code above produces a total of two logs as output, the Dockerfile produces a cron.log while the script produces a script.log
 
-## CLI command to build and run docker container
+## CLI command to build image and run docker container from image
 ```
 docker build -t cron-job .
 docker run -d --name cron-container cron-job
